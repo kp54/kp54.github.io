@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8'>
+    <title>copy-pasta</title>
+    <script>
+      const toDataURI = (blob) => new Promise((resolve) => {
+        const reader = new FileReader();
+
+        const onLoad = () => {
+          if (typeof reader.result !== 'string') {
+            throw new Error('FileReader has responded with invalid result.');
+          }
+
+          reader.removeEventListener('load', onLoad);
+          resolve(reader.result);
+        }
+
+        reader.addEventListener('load', onLoad);
+        reader.readAsDataURL(blob);
+      });
+
+      const addImage = (uri) => {
+        const article = document.createElement('article');
+
+        const div = document.createElement('div');
+        div.innerText = (new Date()).toLocaleString();
+        article.appendChild(div);
+
+        const img = document.createElement('img');
+        img.src = uri;
+        article.appendChild(img);
+
+        const container = document.querySelector('#content');
+        if (container === null) {
+          throw new Error('Container element not found.');
+        }
+
+        container.appendChild(article);
+      };
+
+      const onPaste = (event) => {
+        for (const item of event.clipboardData?.items ?? []) {
+          if (item.kind !== 'file' || item.type !== 'image/png') {
+            continue;
+          }
+
+          const blob = item.getAsFile();
+          if (blob === null) {
+            continue;
+          }
+
+          toDataURI(blob)
+            .then(addImage);
+        }
+      };
+
+      document.addEventListener('paste', onPaste);
+    </script>
+    <style>
+      body {
+        max-width: 40rem;
+        margin: auto;
+      }
+
+      #content {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 1rem;
+      }
+
+      #content article {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        border: 1px dotted slategray;
+        padding: 0.5rem;
+      }
+
+      #content article img {
+        max-width: calc(100% - 2rem);
+        align-self: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>copy-pasta</h1>
+    <main id="content"></main>
+  </body>
+</html>
