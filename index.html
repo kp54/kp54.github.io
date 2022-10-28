@@ -31,9 +31,9 @@
         img.src = uri;
         article.appendChild(img);
 
-        const container = document.querySelector('#content');
+        const container = document.querySelector('main');
         if (container === null) {
-          throw new Error('Container element not found.');
+          throw new Error('The content container element not found.');
         }
 
         container.appendChild(article);
@@ -56,6 +56,26 @@
       };
 
       document.addEventListener('paste', onPaste);
+
+      const changeTitle = () => {
+        const title = document.querySelector('title');
+        if (title === null) {
+          throw new Error('The title element not found');
+        }
+
+        const heading = document.querySelector('h1');
+        if (heading === null) {
+          throw new Error('The heading element not found');
+        }
+
+        const newTitle = window.prompt('Title', title.innerText);
+        if (newTitle === null) {
+          return;
+        }
+
+        title.innerText = newTitle;
+        heading.innerText = newTitle;
+      }
     </script>
     <style>
       body {
@@ -63,13 +83,13 @@
         margin: auto;
       }
 
-      #content {
+      main {
         display: flex;
         flex-direction: column-reverse;
         gap: 1rem;
       }
 
-      #content article {
+      main article {
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -77,14 +97,14 @@
         padding: 0.5rem;
       }
 
-      #content article img {
+      main article img {
         max-width: calc(100% - 2rem);
         align-self: center;
       }
     </style>
   </head>
   <body>
-    <h1>copy-pasta</h1>
-    <main id="content"></main>
+    <h1 onclick="changeTitle()">copy-pasta</h1>
+    <main></main>
   </body>
 </html>
