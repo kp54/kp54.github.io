@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', function onDOMContentLoaded() {
     const remove = document.createElement('a');
     remove.classList.add('js-remove');
     remove.href = '#';
-    remove.onclick = onClickRemove;
     remove.innerText = '[x]';
+    remove.addEventListener('click', onClickRemove);
     header.appendChild(remove);
 
     article.appendChild(header);
