@@ -7,4 +7,7 @@ export default defineConfig({
       removeViteModuleLoader: true,
     }),
   ],
+  build: {
+    minify: false,
+  },
 });
