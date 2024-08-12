@@ -3,10 +3,8 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 
 export default defineConfig({
   plugins: [
-    viteSingleFile(),
+    viteSingleFile({
+      removeViteModuleLoader: true,
+    }),
   ],
-  build: {
-    target: 'esnext',
-    modulePreload: false,
-  },
 });
