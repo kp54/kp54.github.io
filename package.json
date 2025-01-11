@@ -9,9 +9,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
-    "vite": "^5.4.0",
-    "vite-plugin-singlefile": "^2.0.2"
-  },
-  "packageManager": "npm@9.6.1+sha1.a2152518a0458007fc8a3a65e9c5e17f2ea76bf7"
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5",
+    "vite-plugin-singlefile": "^2.1.0"
+  }
 }
