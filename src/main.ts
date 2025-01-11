@@ -62,7 +62,9 @@ document.addEventListener('DOMContentLoaded', function onDOMContentLoaded() {
     article.appendChild(header);
 
     const img = document.createElement('img');
+    img.classList.add('js-image');
     img.src = uri;
+    img.addEventListener('dblclick', onDblClickImage)
     article.appendChild(img);
 
     container.appendChild(article);
@@ -94,15 +96,34 @@ document.addEventListener('DOMContentLoaded', function onDOMContentLoaded() {
     heading.innerText = newTitle;
   };
 
+  const onDblClickImage = async (event: MouseEvent) => {
+    const img = event.target;
+    if (!(img instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const blob = await fetch(img.src).then(x => x.blob());
+    const item = new ClipboardItem({
+      [blob.type]: blob
+    });
+
+    await navigator.clipboard.write([item]);
+  };
+
   document.addEventListener('paste', onPaste);
   heading.addEventListener('click', onClickHeading);
 
-  document.querySelectorAll('.js-remove')
-    .forEach(x => {
-      if (x instanceof HTMLElement) {
-        x.addEventListener('click', onClickRemove);
-      }
-    });
+  for (const elem of document.querySelectorAll('.js-remove')) {
+    if (elem instanceof HTMLElement) {
+      elem.addEventListener('click', onClickRemove);
+    }
+  }
+
+  for (const elem of document.querySelectorAll('.js-image')) {
+    if (elem instanceof HTMLImageElement) {
+      elem.addEventListener('dblclick', onDblClickImage);
+    }
+  }
 
   document.removeEventListener('DOMContentLoaded', onDOMContentLoaded);
 });
