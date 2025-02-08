@@ -45,6 +45,8 @@ document.addEventListener('DOMContentLoaded', function onDOMContentLoaded() {
 
   const addImage = (uri: string) => {
     const article = document.createElement('article');
+    article.classList.add('js-article');
+    article.addEventListener('dblclick', onDblClickArticle)
 
     const header = document.createElement('header');
 
@@ -62,27 +64,59 @@ document.addEventListener('DOMContentLoaded', function onDOMContentLoaded() {
     article.appendChild(header);
 
     const img = document.createElement('img');
-    img.classList.add('js-image');
+    img.classList.add('js-content');
     img.src = uri;
-    img.addEventListener('dblclick', onDblClickImage)
     article.appendChild(img);
+
+    container.appendChild(article);
+  };
+
+  const addPlainText = (text: string) => {
+    const article = document.createElement('article');
+    article.classList.add('js-article');
+    article.addEventListener('dblclick', onDblClickArticle)
+
+    const header = document.createElement('header');
+
+    const timestamp = document.createElement('span');
+    timestamp.innerText = (new Date()).toLocaleString();
+    header.appendChild(timestamp);
+
+    const remove = document.createElement('a');
+    remove.classList.add('js-remove');
+    remove.href = '#';
+    remove.innerText = '[x]';
+    remove.addEventListener('click', onClickRemove);
+    header.appendChild(remove);
+
+    article.appendChild(header);
+
+    const content = document.createElement('pre');
+    content.classList.add('js-content');
+    content.innerText = text;
+    article.appendChild(content);
 
     container.appendChild(article);
   };
 
   const onPaste = (event: ClipboardEvent) => {
     for (const item of event.clipboardData?.items ?? []) {
-      if (item.kind !== 'file' || !item.type.startsWith('image/')) {
-        continue;
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const blob = item.getAsFile();
+        if (blob === null) {
+          continue;
+        }
+
+        toDataURI(blob)
+          .then(addImage);
+
+        break;
       }
 
-      const blob = item.getAsFile();
-      if (blob === null) {
-        continue;
+      if (item.kind === 'string' && item.type === 'text/plain') {
+        item.getAsString(addPlainText);
+        break;
       }
-
-      toDataURI(blob)
-        .then(addImage);
     }
   };
 
@@ -96,18 +130,34 @@ document.addEventListener('DOMContentLoaded', function onDOMContentLoaded() {
     heading.innerText = newTitle;
   };
 
-  const onDblClickImage = async (event: MouseEvent) => {
-    const img = event.target;
-    if (!(img instanceof HTMLImageElement)) {
+  const onDblClickArticle = async (event: MouseEvent) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
       return;
     }
 
-    const blob = await fetch(img.src).then(x => x.blob());
-    const item = new ClipboardItem({
-      [blob.type]: blob
-    });
+    const article = target.closest('.js-article');
+    if (article === null) {
+      return;
+    }
 
-    await navigator.clipboard.write([item]);
+    const content = article.querySelector('.js-content');
+    if (content === null) {
+      return;
+    }
+
+    if (content instanceof HTMLImageElement) {
+      const blob = await fetch(content.src).then(x => x.blob());
+      const item = new ClipboardItem({
+        [blob.type]: blob
+      });
+
+      await navigator.clipboard.write([item]);
+    }
+
+    if (content instanceof HTMLPreElement) {
+      await navigator.clipboard.writeText(content.innerText);
+    }
   };
 
   document.addEventListener('paste', onPaste);
@@ -119,9 +169,9 @@ document.addEventListener('DOMContentLoaded', function onDOMContentLoaded() {
     }
   }
 
-  for (const elem of document.querySelectorAll('.js-image')) {
-    if (elem instanceof HTMLImageElement) {
-      elem.addEventListener('dblclick', onDblClickImage);
+  for (const elem of document.querySelectorAll('.js-article')) {
+    if (elem instanceof HTMLElement) {
+      elem.addEventListener('dblclick', onDblClickArticle);
     }
   }
 
